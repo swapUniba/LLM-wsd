@@ -1,0 +1,35 @@
+BootStrap: docker
+From: nvidia/cuda:12.1.0-cudnn8-devel-ubuntu20.04
+
+%environment
+    export CUBLAS_WORKSPACE_CONFIG=:4096:2
+    export PYTHONHASHSEED=0
+
+%post
+    
+    apt-get update && \
+        apt-get upgrade -y && \
+        DEBIAN_FRONTEND=noninteractive apt-get install -y curl git git-lfs pdsh software-properties-common && \
+        add-apt-repository -y ppa:deadsnakes/ppa && \
+        apt install -y python3.10 python3.10-distutils && \
+        apt-get clean && \
+        rm -rf /var/lib/apt/lists/*
+    
+    curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+    python3.10 -m get-pip
+
+    pip install packaging && \
+        pip install ninja==1.11.1.1
+        
+    pip install transformers==4.44.2 && \
+        pip install peft==0.12.0  && \
+        pip install trl==0.10.1 && \
+        pip install accelerate==0.33.0 && \
+        pip install deepspeed==0.15.0 && \
+        pip install tensorboard && \
+        pip install flash-attn==2.6.3 --no-build-isolation
+
+%runscript
+    alias python3=python3.10
+    alias python=python3
+    eval ${@}
